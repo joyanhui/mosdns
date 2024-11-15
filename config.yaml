@@ -1,0 +1,171 @@
+
+log:
+  level: error #日志级别。可选 "debug" "info" "warn" "error"。默认 "info"
+  file: "/etc/mosdns/log.log"
+
+# API 入口设置
+api:
+  http: "0.0.0.0:9091"
+
+include: []
+
+plugins:
+  # 自定义hosts 注意格式和系统hosts不同 支持泛域名domain和fulldomain
+  - tag: mosdns_hosts
+    type: hosts
+    args:
+      files:
+        - "/etc/mosdns/hosts.txt"
+# 测试pipeline ./mosdns probe pipeline tls://101.226.4.6
+  # 阿里和360的不支持
+  # 转发至本地服务器 国内解析
+  - tag: forward_local
+    type: forward
+    args:
+      concurrent: 3 #最大3并发
+      upstreams: #因为最大3并发所以三个就够了自己选速度好的  
+        - addr: "tls://223.5.5.5" #阿里
+          enable_pipeline: false
+        - addr: "tls://1.12.12.12" #腾讯 dnspod
+          enable_pipeline: true
+        - addr: "tls://101.226.4.6" #360电信
+          enable_pipeline: false
+  # 转发至远程服务器 境外解析上游
+  - tag: forward_remote
+    type: forward
+    args:
+      concurrent: 3 #最大3并发
+      upstreams:
+        - addr: tls://8.8.8.8
+          enable_pipeline: true
+        - addr: tls://1.1.1.1
+          enable_pipeline: true
+        - addr: https://doh.youUrls.com
+          bootstrap: 223.5.5.5 #bootstrap地址负责解析doh域名 只能udp
+          bootstrap_version: 4 #解析的doh域名返回ipv4还是v6
+          enable_pipeline: false
+          enable_http3: false #http3 udp不稳 还是强制走http2
+  # 国内域名
+  - tag: geosite_cn
+    type: domain_set
+    args:
+      files:
+        - "/etc/mosdns/geosite_cn.txt"
+
+  # 国内 IP
+  - tag: geoip_cn
+    type: ip_set
+    args:
+      files:
+        - "/etc/mosdns/geoip_cn.txt"
+
+  # 国外域名
+  - tag: geosite_no_cn
+    type: domain_set
+    args:
+      files:
+        - "/etc/mosdns/geosite_geolocation-!cn.txt"
+
+  # 缓存
+  - tag: lazy_cache
+    type: cache
+    args:
+      size: 20000
+      lazy_cache_ttl: 86400
+      #dump_file: "/etc/mosdns/cache.dump"
+      #dump_interval: 600
+  # 国内解析
+  - tag: local_sequence
+    type: sequence
+    args:
+      - exec: $forward_local
+
+  # 国外解析
+  - tag: remote_sequence
+    type: sequence
+    args:
+      - exec: prefer_ipv4
+      - exec: $forward_remote
+
+  # 有响应终止返回
+  - tag: has_resp_sequence
+    type: sequence
+    args:
+      - matches: has_resp
+        exec: accept
+
+  # fallback 用本地服务器 sequence
+  # 返回非国内 ip 则 drop_resp
+  - tag: query_is_local_ip
+    type: sequence
+    args:
+      - exec: $local_sequence
+      - matches: "!resp_ip $geoip_cn"
+        exec: drop_resp
+
+  # fallback 用远程服务器 sequence
+  - tag: query_is_remote
+    type: sequence
+    args:
+      - exec: $remote_sequence
+
+  # fallback 用远程服务器 sequence
+  - tag: fallback
+    type: fallback
+    args:
+      primary: query_is_local_ip
+      secondary: query_is_remote
+      threshold: 500
+      always_standby: true
+
+  # 查询国内域名
+  - tag: query_is_local_domain
+    type: sequence
+    args:
+      - matches: qname $geosite_cn
+        exec: $local_sequence
+
+  # 查询国外域名
+  - tag: query_is_no_local_domain
+    type: sequence
+    args:
+      - matches: qname $geosite_no_cn
+        exec: $remote_sequence
+
+  # 主要的运行逻辑插件
+  # sequence 插件中调用的插件 tag 必须在 sequence 前定义，
+  # 否则 sequence 找不到对应插件。
+  - tag: main_sequence
+    type: sequence
+    args:
+      - exec: $mosdns_hosts
+      - exec: query_summary entry
+      - exec: $lazy_cache
+      - exec: $query_is_local_domain
+      - exec: jump has_resp_sequence
+      - exec: $query_is_no_local_domain
+      - exec: jump has_resp_sequence
+      - exec: $fallback
+
+  #### 最后配置 server........略
+  - tag: server
+    type: udp_server # 目前有 udp/tcp/http_server
+    args:
+      entry: main_sequence
+      listen: 0.0.0.0:53
+  - tag: server_tcp
+    type: tcp_server
+    args:
+      entry: main_sequence
+      listen: 0.0.0.0:53
+  - tag: "server_http"
+    type: "http_server"
+    args:
+      entries:                 # []extry
+        - path: /dns-query     # 本路径执行   
+          exec: main_sequence # 可执行插件的 tag。  
+      src_ip_header: "X-Forwarded-For"  # 从 HTTP 头获取用户 IP。
+      listen: 0.0.0.0:80  # 监听地址。
+      cert: "" # 留空 cert 和 key 后会禁用 TLS。 这里没有配置证书，外网使用另外有acme和nginx处理https
+      key: "" 
+      idle_timeout: 10       # 空连接超时。单位秒。默认 30。
