@@ -8,4 +8,4 @@
 
 # 构建和测试
 
-./build_test.sh
+[[./build_test.sh]](https://github.com/joyanhui/mosdns/blob/main/build_test.sh)
