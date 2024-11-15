@@ -7,9 +7,9 @@ cd /tmp/mosdns
 docker rm -f my-mosdns
 docker rmi my-mosdns
 
-curl /etc/mosdns/config.yaml https://ghp.ci/https://github.com/joyanhui/mosdns-auto-update/raw/refs/heads/main/config.yaml
-curl mosdns-cron-start.sh  https://ghp.ci/https://github.com/joyanhui/mosdns-auto-update/raw/refs/heads/main/mosdns-cron-start.sh
-curl Dockerfile  https://ghp.ci/https://github.com/joyanhui/mosdns-auto-update/raw/refs/heads/main/Dockerfile
+curl /etc/mosdns/config.yaml https://ghp.ci/https://github.com/joyanhui/mosdns/raw/refs/heads/main/config.yaml
+curl mosdns-cron-start.sh  https://ghp.ci/https://github.com/joyanhui/mosdns/raw/refs/heads/main/mosdns-cron-start.sh
+curl Dockerfile  https://ghp.ci/https://github.com/joyanhui/mosdns/raw/refs/heads/main/Dockerfile
 
 docker build -t my-mosdns .
 

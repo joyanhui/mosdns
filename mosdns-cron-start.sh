@@ -11,7 +11,7 @@ updateLocalFile() {
     # 更新配置文件
     echo "更新配置文件"
     # 下载配置文件
-    curl -L -o /etc/mosdns/config.yaml https://ghp.ci/https://github.com/joyanhui/mosdns-auto-update/raw/refs/heads/main/config.yaml
+    curl -L -o /etc/mosdns/config.yaml https://ghp.ci/https://github.com/joyanhui/mosdns/raw/refs/heads/main/config.yaml
  fi
 
  # /etc/mosdns/hosts.txt
@@ -19,7 +19,7 @@ updateLocalFile() {
    # 更新配置文件
    echo "更新hosts文件"
    # 下载配置文件
-   curl -L -o /etc/mosdns/hosts.txt https://ghp.ci/https://github.com/joyanhui/mosdns-auto-update/raw/refs/heads/main/hosts.txt
+   curl -L -o /etc/mosdns/hosts.txt https://ghp.ci/https://github.com/joyanhui/mosdns/raw/refs/heads/main/hosts.txt
  fi
 
  # geoip_cn.txt
