@@ -7,7 +7,7 @@ updateLocalFile() {
   force="\$1"
   echo "检查是否需要更新配置 ...."
   # 配置文件
-  if [ ! -f "/etc/mosdns/config.yaml" ] || [ "$force" = "1" ]; then
+  if [ ! -f "/etc/mosdns/config.yaml" ] ; then
     # 更新配置文件
     echo "更新配置文件"
     # 下载配置文件
@@ -15,7 +15,7 @@ updateLocalFile() {
  fi
 
  # /etc/mosdns/hosts.txt
- if [ ! -f "/etc/mosdns/hosts.txt" ] || [ "$force" = "1" ]; then
+ if [ ! -f "/etc/mosdns/hosts.txt" ] ; then
    # 更新配置文件
    echo "更新hosts文件"
    # 下载配置文件
