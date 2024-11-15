@@ -1,7 +1,6 @@
 FROM  dockerproxy.net/irinesistiana/mosdns
 #FROM  irinesistiana/mosdns
 ADD ./config.yaml /etc/mosdns/config.yaml
-ADD ./hosts.txt /etc/mosdns/hosts.txt
 ADD ./mosdns-cron-start.sh /mosdns-cron-start.sh
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories&&apk add curl && chmod +x /mosdns-cron-start.sh
 VOLUME /etc/mosdns
