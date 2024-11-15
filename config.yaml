@@ -140,6 +140,7 @@ plugins:
     args:
       - exec: $mosdns_hosts
       - exec: query_summary entry
+      - exec: prefer_ipv4  # ipv4有限，腾讯大量子域名存在ipv6有解析但是无响应
       - exec: $lazy_cache
       - exec: $query_is_local_domain
       - exec: jump has_resp_sequence
