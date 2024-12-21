@@ -23,8 +23,8 @@ plugins:
     type: forward
     args:
       concurrent: 3 #最大3并发
-      upstreams: #因为最大3并发所以三个就够了自己选速度好的  
-        - addr: "tls://223.5.5.5" #阿里 貌似已经限流
+      upstreams: #因为最大3并发所以三个就够了自己选速度好的   阿里云貌似已经限流偶尔返回很慢，弃用掉
+        - addr: "tls://120.53.53.53" # 腾讯
           enable_pipeline: false
         - addr: "tls://1.12.12.12" #腾讯 dnspod
           enable_pipeline: true
@@ -40,8 +40,9 @@ plugins:
           enable_pipeline: true
         - addr: tls://1.1.1.1
           enable_pipeline: true
-        - addr: https://doh.youUrls.com  # 使用cloudflare works或者境外vps等自建一个私有doh，可以确保在无代理环境并且前面的都被屏蔽的情况下依旧可以访问到结果
-          bootstrap: 223.5.5.5 #bootstrap地址负责解析doh域名 要支持 udp:53
+        # 使用cloudflare works或者境外vps等自建一个私有doh，可以确保在无代理环境并且前面的都被屏蔽的情况下依旧可以访问到结果
+        - addr: https://doh.apad.pro/dns-query #网友提供的，可能不稳定 建议自建私用 
+          bootstrap: 1.12.12.12 #bootstrap地址负责解析doh域名 要支持 udp:53
           bootstrap_version: 6 #解析的doh域名返回ipv4还是v6   4/6 建议6
           enable_pipeline: false
           enable_http3: false #http3 udp不稳 还是强制走http2
