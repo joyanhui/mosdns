@@ -28,13 +28,13 @@ docker run -itd --name my-mosdns  -p 8853:53 -p 8853:53/udp -p 8880:80 -p 8880:8
 docker run -itd --name my-mosdns -v ./etc-mosdns:/etc/mosdns -p 8853:53 -p 8853:53/udp -p 8880:80 -p 8880:80/udp my-mosdns
 
 
-# rax3000 test
+# rax3000 硬路由运行测试test
 
 
 docker run -itd --name my-mosdns -v /overlay/data/mosdns:/etc/mosdns -p 8853:53 -p 8853:53/udp -p 9987:80 -p 9987:80/udp my-mosdns
 
 
-# 测试dns
+# 测试dns 基于nixos dig
 
 nix-shell -p dig  # nixos
 
