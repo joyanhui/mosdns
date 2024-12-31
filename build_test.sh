@@ -32,6 +32,8 @@ docker run -itd --name my-mosdns -v ./etc-mosdns:/etc/mosdns -p 8853:53 -p 8853:
 
 
 docker run -itd --name my-mosdns -v /overlay/data/mosdns:/etc/mosdns -p 8853:53 -p 8853:53/udp -p 9987:80 -p 9987:80/udp my-mosdns
+# 带更新间隔 也就是环境变量 UPDATE_INTERVAL=60
+docker run -itd --name my-mosdns -v /overlay/data/mosdns:/etc/mosdns -p 8853:53 -p 8853:53/udp -p 9987:80 -p 9987:80/udp  -e UPDATE_INTERVAL=60 my-mosdns
 
 
 # 测试dns 基于nixos dig

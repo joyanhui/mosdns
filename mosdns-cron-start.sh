@@ -3,6 +3,7 @@
 
 # 更新本地配置 如果参数 是1 那么不管文件是否存在都要更新
 updateLocalFile() {
+   mkdir -p /etc/mosdns
   # 强制更新 参数 \$1 是传递给函数的第一个参数
   force="\$1"
   echo "检查是否需要更新配置 ...."
@@ -79,9 +80,12 @@ echo "启动 mosdns 服务 ..."
 
 echo "启动 cron 服务 ..."
 
+# 设置更新间隔,默认60秒
+
+UPDATE_INTERVAL=${UPDATE_INTERVAL:-60}
 while true; do
-  sleep 60
+  sleep $UPDATE_INTERVAL
   echo "强制更新本地文件数据库文件..."
-  updateLocalFile 1
+  updateLocalFile 1 || true
 done
 
