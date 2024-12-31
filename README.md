@@ -31,11 +31,13 @@ cd $MOSDNS_DATA_PATH
 docker rm -f $MOSDNS_CONTAINER_NAME 
 docker rmi $MOSDNS_CONTAINER_NAME
 # 下载配置文件
-rm -rf config.yaml && rm -rf mosdns-cron-start.sh && rm -rf Dockerfile
+#  rm -rf config.yaml && rm -rf mosdns-cron-start.sh && rm -rf Dockerfile
 curl -L -o config.yaml ${GITHUB_PROXY}https://github.com/joyanhui/mosdns/raw/refs/heads/main/config.yaml
 curl -L -o mosdns-cron-start.sh  ${GITHUB_PROXY}https://github.com/joyanhui/mosdns/raw/refs/heads/main/mosdns-cron-start.sh
 curl -L -o Dockerfile  ${GITHUB_PROXY}https://github.com/joyanhui/mosdns/raw/refs/heads/main/Dockerfile
-# 下载mosdns基础镜像
+
+ls -l config.yaml && ls -l mosdns-cron-start.sh && ls -l Dockerfile
+ # 下载mosdns基础镜像
 docker pull $MOSDNS_BASE_IMAGE
 # 构建镜像
 docker build -t $MOSDNS_CONTAINER_NAME .
@@ -48,7 +50,6 @@ docker images |grep $MOSDNS_CONTAINER_NAME
 # 如果需要修改配置文件
 # docker run -itd --name $MOSDNS_CONTAINER_NAME -v $MOSDNS_DATA_PATH:/etc/mosdns -p 8853:53 -p 8853:53/udp -p 8880:80 -p 8880:80/udp $MOSDNS_CONTAINER_NAME
 # rax3000 硬路由运行测试test
-docker run -itd --name $MOSDNS_CONTAINER_NAME -v $MOSDNS_DATA_PATH:/etc/mosdns -p 8853:53 -p 8853:53/udp -p 9987:80 -p 9987:80/udp $MOSDNS_CONTAINER_NAME 
 # 带更新间隔 也就是环境变量 UPDATE_INTERVAL=60
 docker run -itd --name $MOSDNS_CONTAINER_NAME -v $MOSDNS_DATA_PATH:/etc/mosdns -p 8853:53 -p 8853:53/udp -p 9987:80 -p 9987:80/udp  -e UPDATE_INTERVAL=60 $MOSDNS_CONTAINER_NAME
 
@@ -59,6 +60,8 @@ nix-shell -p dig  # nixos
 
 
 dig @127.0.0.1 -p 8853 www.baidu.com
+
+dig @127.0.0.1 -p 8853 www.google.com
 
 dig @192.168.1.1 -p 8853 www.baidu.com
 
