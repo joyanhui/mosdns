@@ -23,13 +23,20 @@ plugins:
     type: forward
     args:
       concurrent: 3 #最大3并发
-      upstreams: #因为最大3并发所以三个就够了自己选速度好的   阿里云貌似已经限流偶尔返回很慢，弃用掉
-        - addr: "tls://120.53.53.53" # 腾讯
+      upstreams: 
+      #因为最大3并发所以三个就够了自己选速度好的 基础dns建议不要用dot/doh，因为tls也需要证书会导致很慢或者失败
+        - addr: "udp://219.146.0.130" # 山东电信
           enable_pipeline: false
-        - addr: "tls://1.12.12.12" #腾讯 dnspod
-          enable_pipeline: true
-        - addr: "tls://101.226.4.6" #360电信
+        - addr: "udp://114.114.114.114" # 114
           enable_pipeline: false
+        - addr: "udp://219.146.1.66" # 山东电信
+          enable_pipeline: false
+        #- addr: "tls://120.53.53.53" # 腾讯 貌似也已经限速
+        #  enable_pipeline: false
+        #- addr: "tls://1.12.12.12" #腾讯 dnspod
+        #  enable_pipeline: true
+        #- addr: "tls://101.226.4.6" #360电信
+        #  enable_pipeline: false
   # 转发至远程服务器 境外解析上游
   - tag: forward_remote
     type: forward
@@ -42,10 +49,10 @@ plugins:
           enable_pipeline: true
         # 使用cloudflare works或者境外vps等自建一个私有doh，可以确保在无代理环境并且前面的都被屏蔽的情况下依旧可以访问到结果
         - addr: https://doh.apad.pro/dns-query #网友提供的，可能不稳定 建议自建私用 
-          bootstrap: 1.12.12.12 #bootstrap地址负责解析doh域名 要支持 udp:53
-          bootstrap_version: 6 #解析的doh域名返回ipv4还是v6   4/6 建议6
+          bootstrap: 114.114.114.114 #bootstrap地址负责解析doh域名 要支持 udp:53
+          bootstrap_version: 4 #解析的doh域名返回ipv4还是v6   4/6 
           enable_pipeline: false
-          enable_http3: false #http3 udp不稳 还是强制走http2
+          enable_http3: false #http3 udp不稳 
   # 国内域名
   - tag: geosite_cn
     type: domain_set

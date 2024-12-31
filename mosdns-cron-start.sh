@@ -6,11 +6,17 @@ updateLocalFile() {
    mkdir -p /etc/mosdns
   # 强制更新 参数 \$1 是传递给函数的第一个参数
   force="\$1"
-  echo "检查是否需要更新配置 ...."
+  #echo "检查是否需要更新配置 ...."
+  if [ "$force" = "1" ]; then
+    echo "强制更新配置文件"
+  fi
+  if [ "$force" = "0" ]; then
+    echo "不强制更新配置文件"
+  fi
   # 配置文件
   if [ ! -f "/etc/mosdns/config.yaml" ] ; then
     # 更新配置文件
-    echo "更新配置文件"
+    echo "更新mosdns基础配置文件"
     # 下载配置文件
     curl -L -o /etc/mosdns/config.yaml https://ghp.ci/https://github.com/joyanhui/mosdns/raw/refs/heads/main/config.yaml
  fi
